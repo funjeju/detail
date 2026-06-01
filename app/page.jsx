@@ -13,16 +13,28 @@ import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 function App() {
-  const [step, setStep] = useState(() => localStorage.getItem('appStep') || 'INPUT');
+  const [step, setStep] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('appStep') || 'INPUT';
+    return 'INPUT';
+  });
   const [draft, setDraft] = useState(() => {
-    const saved = localStorage.getItem('appDraft');
-    return saved ? JSON.parse(saved) : null;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('appDraft');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
   });
   const [prompts, setPrompts] = useState(() => {
-    const saved = localStorage.getItem('appPrompts');
-    return saved ? JSON.parse(saved) : null;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('appPrompts');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
   });
-  const [productInfo, setProductInfo] = useState(() => localStorage.getItem('appProductInfo') || '');
+  const [productInfo, setProductInfo] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('appProductInfo') || '';
+    return '';
+  });
   const [user, setUser] = useState(null);
 
   useEffect(() => {
