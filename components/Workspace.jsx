@@ -386,7 +386,7 @@ You MUST render the following typography text beautifully overlaid on the image'
                   key={prompt.id} 
                   style={{ 
                     width: '860px', 
-                    height: `${heightNum}px`, 
+                    height: prompt.imageUrl ? 'auto' : `${heightNum}px`, 
                     position: 'relative',
                     borderBottom: '1px dashed #ccc',
                     backgroundColor: prompt.imageUrl ? '#fff' : '#f8f9fa',
@@ -396,11 +396,11 @@ You MUST render the following typography text beautifully overlaid on the image'
                   }}
                 >
                   {prompt.imageUrl ? (
-                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <div style={{ position: 'relative', width: '100%', display: 'flex', flexDirection: 'column' }}>
                       <img 
                         src={prompt.imageUrl} 
                         alt={prompt.section}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        style={{ width: '100%', height: 'auto', display: 'block' }}
                       />
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDownloadImage(prompt); }}
