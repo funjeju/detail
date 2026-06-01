@@ -33,7 +33,10 @@ export async function POST(request) {
           { text: SYSTEM_PROMPT + "\n\n--- User Product Info ---\n\n" + productInfo }
         ] 
       }],
-      generationConfig: { temperature: 0.7 },
+      generationConfig: { 
+        temperature: 0.7,
+        responseMimeType: "application/json"
+      },
       safetySettings: [{ category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' }],
     };
 
@@ -60,7 +63,13 @@ export async function POST(request) {
       cleanContent = cleanContent.replace(/^\`\`\`(json)?\n?/, '').replace(/\n?\`\`\`$/, '');
     }
     
-    const parsedJson = JSON.parse(cleanContent);
+    let parsedJson;
+    try {
+      parsedJson = JSON.parse(cleanContent);
+    } catch (parseError) {
+      console.error("JSON Parse failed, returning raw content:", cleanContent);
+      return NextResponse.json({ error: "Gemini returned invalid JSON format." }, { status: 500 });
+    }
     return NextResponse.json(parsedJson);
 
   } catch (error) {
