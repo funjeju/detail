@@ -7,7 +7,7 @@ import PromptResults from '../components/PromptResults';
 import Workspace from '../components/Workspace';
 
 
-import { Sparkles, LogIn, LogOut, FileText } from 'lucide-react';
+import { Sparkles, LogIn, LogOut, FileText, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { auth, googleProvider, db } from '../lib/firebase';
@@ -174,16 +174,30 @@ function App() {
   };
 
   const handleReset = () => {
-    setStep('INPUT');
-    setDraft(null);
-    setPrompts(null);
-    setCurrentDocId(null);
+    if (step === 'INPUT') return;
+    if (window.confirm('현재 작업 내역을 닫고 새로운 프로젝트를 시작하시겠습니까?')) {
+      localStorage.removeItem('appStep');
+      localStorage.removeItem('appProductInfo');
+      localStorage.removeItem('appDraft');
+      localStorage.removeItem('appPrompts');
+      localStorage.removeItem('appDocId');
+      setStep('INPUT');
+      setProductInfo('');
+      setDraft(null);
+      setPrompts(null);
+      setCurrentDocId(null);
+    }
   };
 
   return (
     <div className="app-container">
       <header style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {step !== 'INPUT' && (
+            <button onClick={handleReset} className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderRadius: '8px' }}>
+              <Plus size={16} /> 새 프로젝트
+            </button>
+          )}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               <img src={user.photoURL} alt="Profile" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
@@ -201,7 +215,11 @@ function App() {
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', marginBottom: '0.5rem', marginTop: '2rem' }}>
+        <div 
+          onClick={handleReset}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', marginBottom: '0.5rem', marginTop: '2rem', cursor: step === 'INPUT' ? 'default' : 'pointer' }}
+          title={step !== 'INPUT' ? '메인 화면으로 가기' : ''}
+        >
           <Sparkles color="var(--primary-color)" size={32} />
           <h1>SmartStore Prompt Gen AI</h1>
         </div>
