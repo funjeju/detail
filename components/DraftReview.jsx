@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { CheckCircle2, Edit3, User, Palette } from 'lucide-react';
 

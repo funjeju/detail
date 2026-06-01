@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Upload, Link, AlignLeft, Sparkles } from 'lucide-react';
 

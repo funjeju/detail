@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Copy, Image as ImageIcon, Layout, Type } from 'lucide-react';
 
