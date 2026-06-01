@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Play, Save, CheckCircle, Image as ImageIcon, FileText, Zap } from 'lucide-react';
-import { db } from '../lib/firebase';
+import { db, storage } from '../lib/firebase';
 import { updateDoc, doc } from 'firebase/firestore';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 const Workspace = ({ prompts, setPrompts, user, currentDocId, onReset }) => {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
@@ -40,22 +41,25 @@ You MUST render the following typography text beautifully overlaid on the image'
         throw new Error(err.error || 'Failed to generate image');
       }
 
-      const { imageUrl } = await response.json();
+      let finalImageUrl = imageUrl;
 
-      // Update local state
+      // Upload base64 to Firebase Storage if user is logged in to persist it permanently
+      if (user && imageUrl.startsWith('data:image')) {
+        const imageRef = ref(storage, `users/${user.uid}/projects/${currentDocId || 'temp'}/${activePromptIndex}_${Date.now()}.png`);
+        await uploadString(imageRef, imageUrl, 'data_url');
+        finalImageUrl = await getDownloadURL(imageRef);
+      }
+
+      // Update local state with the permanent URL
       const updatedPrompts = [...prompts];
-      updatedPrompts[activePromptIndex] = { ...activePrompt, imageUrl };
+      updatedPrompts[activePromptIndex] = { ...activePrompt, imageUrl: finalImageUrl };
       setPrompts(updatedPrompts);
 
       // Update Firestore if user is logged in
       if (user && currentDocId) {
-        // Strip out base64 image data and undefined fields before saving to Firestore to prevent 1MB limit or invalid entity errors
+        // Clean up undefined values for Firestore
         const promptsForDb = updatedPrompts.map(p => {
           const pCopy = { ...p };
-          if (pCopy.imageUrl === undefined || (pCopy.imageUrl && pCopy.imageUrl.startsWith('data:image'))) {
-            delete pCopy.imageUrl;
-          }
-          // Firebase doesn't allow undefined values anywhere
           Object.keys(pCopy).forEach(key => {
             if (pCopy[key] === undefined) delete pCopy[key];
           });
@@ -68,7 +72,7 @@ You MUST render the following typography text beautifully overlaid on the image'
       }
     } catch (e) {
       console.error(e);
-      alert('이미지 생성은 성공했으나 저장 중 오류가 발생했습니다 (단, 화면에는 유지됩니다).');
+      alert('이미지 생성 또는 저장 중 오류가 발생했습니다: ' + e.message);
     } finally {
       setIsGeneratingImage(false);
     }
