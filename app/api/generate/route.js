@@ -13,7 +13,8 @@ Each object must contain exactly the following fields:
 - fontStyle: short description of typography for this image (e.g., "헤드라인: S-Core Dream Bold, 본문: Pretendard Regular")
 - imagePrompt: the exact prompt for Image2 generation. Include the common Image2 rules:
   * photorealistic, commercial photography, natural lighting, minimal background, clean ecommerce design, realistic texture, avoid excessive staging.
-  * CRITICAL: Must explicitly instruct the AI to leave empty/negative space (e.g., "vast clean negative space on the left side for text overlay", "empty background space at the top") so the marketer can overlay the copy text later.
+  * CRITICAL 1: Must explicitly instruct the AI to leave empty/negative space (e.g., "vast clean negative space on the left side for text overlay").
+  * CRITICAL 2: You MUST include the EXACT mainCopy and subCopy text inside the prompt so the image generator natively renders the text. Example: `with bold typography text "제주를 마시다!" and sub-text "물 한 방울도 용납하지 않습니다" beautifully overlaid on the empty space`.
   * Also embed the required image size: "width 860px, height <height>".
 
 Return pure JSON (no markdown) containing exactly 10 objects covering the sections defined by the user (Hook, 문제 공감, 해결 제안, 핵심 가치 5장, 신뢰 요소, 상세 정보, 구매 전 체크, CTA, and optional bonus to keep total 10‑12). Do not add any extra explanatory text.`;
