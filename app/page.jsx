@@ -6,7 +6,8 @@ import DraftReview from '../components/DraftReview';
 import PromptResults from '../components/PromptResults';
 
 
-import { Sparkles, LogIn, LogOut } from 'lucide-react';
+import { Sparkles, LogIn, LogOut, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 import { auth, googleProvider, db } from '../lib/firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -149,6 +150,9 @@ function App() {
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               <img src={user.photoURL} alt="Profile" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+              <Link href="/mypage" className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
+                <FileText size={16} /> 내 저장함
+              </Link>
               <button onClick={handleLogout} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <LogOut size={16} /> 로그아웃
               </button>

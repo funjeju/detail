@@ -71,7 +71,7 @@ const PromptCard = ({ data }) => {
   );
 };
 
-const PromptResults = ({ prompts, onReset }) => {
+const PromptResults = ({ prompts, onReset, readOnly = false }) => {
   return (
     <div className="animate-fade-in-up">
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -81,9 +81,11 @@ const PromptResults = ({ prompts, onReset }) => {
         <p style={{ color: 'var(--text-secondary)' }}>
           모든 모듈의 설계가 완료되었습니다. 아래 프롬프트를 Image 2 또는 미드저니에 복사하여 사용하세요.
         </p>
-        <button className="btn-secondary" onClick={onReset} style={{ marginTop: '1.5rem' }}>
-          새로운 프로젝트 시작
-        </button>
+        {!readOnly && (
+          <button className="btn-secondary" onClick={onReset} style={{ marginTop: '1.5rem' }}>
+            새로운 프로젝트 시작
+          </button>
+        )}
       </div>
 
       <div className="results-grid">

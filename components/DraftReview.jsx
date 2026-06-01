@@ -3,7 +3,7 @@
 import React from 'react';
 import { CheckCircle2, Edit3, User, Palette } from 'lucide-react';
 
-const DraftReview = ({ draft, onConfirm }) => {
+const DraftReview = ({ draft, onConfirm, readOnly = false }) => {
   return (
     <div className="glass-card animate-fade-in-up">
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -44,27 +44,29 @@ const DraftReview = ({ draft, onConfirm }) => {
         </div>
       </div>
 
-      <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '2rem', marginTop: '2rem' }}>
-        <h3 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>이 방향으로 진행할까요?</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-          <button className="btn-primary" onClick={onConfirm} style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-            <CheckCircle2 size={20} />
-            ① 그대로 진행 (최종 프롬프트 생성)
-          </button>
-          <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
-            <Edit3 size={24} />
-            ② 카피 수정
-          </button>
-          <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
-            <User size={24} />
-            ③ 모델 변경
-          </button>
-          <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
-            <Palette size={24} />
-            ④ 톤 변경
-          </button>
+      {!readOnly && (
+        <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '2rem', marginTop: '2rem' }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>이 방향으로 진행할까요?</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+            <button className="btn-primary" onClick={onConfirm} style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+              <CheckCircle2 size={20} />
+              ① 그대로 진행 (최종 프롬프트 생성)
+            </button>
+            <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
+              <Edit3 size={24} />
+              ② 카피 수정
+            </button>
+            <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
+              <User size={24} />
+              ③ 모델 변경
+            </button>
+            <button className="btn-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.2rem' }}>
+              <Palette size={24} />
+              ④ 톤 변경
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
