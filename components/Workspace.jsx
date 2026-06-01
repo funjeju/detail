@@ -49,16 +49,32 @@ You MUST render the following typography text beautifully overlaid on the image'
 
       // Update Firestore if user is logged in
       if (user && currentDocId) {
+        // Strip out base64 image data before saving to Firestore to prevent 1MB limit or invalid entity errors
+        const promptsForDb = updatedPrompts.map(p => ({
+          ...p,
+          imageUrl: p.imageUrl?.startsWith('data:image') ? null : p.imageUrl
+        }));
+        
         await updateDoc(doc(db, 'prompts', user.uid, 'projects', currentDocId), {
-          prompts: updatedPrompts
+          prompts: promptsForDb
         });
       }
     } catch (e) {
       console.error(e);
-      alert('이미지 생성에 실패했습니다: ' + e.message);
+      alert('이미지 생성은 성공했으나 저장 중 오류가 발생했습니다 (단, 화면에는 유지됩니다).');
     } finally {
       setIsGeneratingImage(false);
     }
+  };
+
+  const handleDownloadImage = (prompt) => {
+    if (!prompt || !prompt.imageUrl) return;
+    const link = document.createElement('a');
+    link.href = prompt.imageUrl;
+    link.download = `${prompt.section}_image.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const generateSinglePrompt = async (indexToGenerate) => {
@@ -380,11 +396,34 @@ You MUST render the following typography text beautifully overlaid on the image'
                   }}
                 >
                   {prompt.imageUrl ? (
-                    <img 
-                      src={prompt.imageUrl} 
-                      alt={prompt.section}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                      <img 
+                        src={prompt.imageUrl} 
+                        alt={prompt.section}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDownloadImage(prompt); }}
+                        style={{
+                          position: 'absolute',
+                          bottom: '20px',
+                          right: '20px',
+                          padding: '10px 20px',
+                          backgroundColor: 'rgba(0,0,0,0.6)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontWeight: 'bold',
+                          zIndex: 20
+                        }}
+                      >
+                        <Save size={16} /> 다운로드
+                      </button>
+                    </div>
                   ) : (
                     <div style={{ textAlign: 'center', color: '#aaa' }}>
                       <ImageIcon size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
