@@ -14,10 +14,10 @@ export async function POST(request) {
     }
 
     const body = {
-      model: "dall-e-3", // Standardize on dall-e-3 as it's the actual model name for ChatGPT Image 3
+      model: "gpt-image-2", // The user's specified 2026 ChatGPT Image 2.0 API model
       prompt: prompt,
       n: 1,
-      size: "1024x1792" // Using the maximum vertical ratio supported by dall-e-3
+      size: "1024x1792"
     };
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
