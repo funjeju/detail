@@ -11,7 +11,7 @@ import Link from 'next/link';
 
 import { auth, googleProvider, db } from '../lib/firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 function App() {
   const [step, setStep] = useState(() => {
@@ -36,6 +36,10 @@ function App() {
     if (typeof window !== 'undefined') return localStorage.getItem('appProductInfo') || '';
     return '';
   });
+  const [currentDocId, setCurrentDocId] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('appDocId') || null;
+    return null;
+  });
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -45,7 +49,9 @@ function App() {
     else localStorage.removeItem('appDraft');
     if (prompts) localStorage.setItem('appPrompts', JSON.stringify(prompts));
     else localStorage.removeItem('appPrompts');
-  }, [step, draft, prompts, productInfo]);
+    if (currentDocId) localStorage.setItem('appDocId', currentDocId);
+    else localStorage.removeItem('appDocId');
+  }, [step, draft, prompts, productInfo, currentDocId]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -89,6 +95,22 @@ function App() {
       
       const draftData = await response.json();
       setDraft(draftData);
+      
+      // Save draft step to Firestore immediately
+      if (user) {
+        try {
+          const docRef = await addDoc(collection(db, 'prompts', user.uid, 'projects'), {
+            productInfo: content,
+            draft: draftData,
+            createdAt: serverTimestamp()
+          });
+          setCurrentDocId(docRef.id);
+          console.log("Draft saved to Firestore:", docRef.id);
+        } catch (dbError) {
+          console.error("Firestore save error:", dbError);
+        }
+      }
+
       setStep('REVIEW');
     } catch (e) {
       console.error(e);
@@ -114,18 +136,26 @@ function App() {
       const finalPrompts = await response.json();
       setPrompts(finalPrompts);
       
-      // Save to Firestore if user is logged in
+      // Update Firestore with final prompts
       if (user) {
         try {
-          await addDoc(collection(db, 'prompts', user.uid, 'projects'), {
-            productInfo,
-            draft,
-            prompts: finalPrompts,
-            createdAt: serverTimestamp()
-          });
-          console.log("Saved to Firestore!");
+          if (currentDocId) {
+            await updateDoc(doc(db, 'prompts', user.uid, 'projects', currentDocId), {
+              prompts: finalPrompts
+            });
+            console.log("Prompts updated in Firestore!");
+          } else {
+            // Fallback if docId is missing
+            const docRef = await addDoc(collection(db, 'prompts', user.uid, 'projects'), {
+              productInfo,
+              draft,
+              prompts: finalPrompts,
+              createdAt: serverTimestamp()
+            });
+            setCurrentDocId(docRef.id);
+          }
         } catch (dbError) {
-          console.error("Firestore save error:", dbError);
+          console.error("Firestore update error:", dbError);
         }
       }
       
@@ -141,6 +171,7 @@ function App() {
     setStep('INPUT');
     setDraft(null);
     setPrompts(null);
+    setCurrentDocId(null);
   };
 
   return (
