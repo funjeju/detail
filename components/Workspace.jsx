@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, Play, Save, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { RefreshCw, Play, Save, CheckCircle, Image as ImageIcon, FileText } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { updateDoc, doc } from 'firebase/firestore';
 
