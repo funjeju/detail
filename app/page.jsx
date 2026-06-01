@@ -121,51 +121,52 @@ function App() {
   };
 
   const handleConfirmDraft = async () => {
-    setStep('LOADING_RESULTS');
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productInfo })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate');
-      }
-      
-      const finalPrompts = await response.json();
-      setPrompts(finalPrompts);
-      
-      // Update Firestore with final prompts
-      if (user) {
-        try {
-          if (currentDocId) {
-            await updateDoc(doc(db, 'prompts', user.uid, 'projects', currentDocId), {
-              prompts: finalPrompts
-            });
-            console.log("Prompts updated in Firestore!");
-          } else {
-            // Fallback if docId is missing
-            const docRef = await addDoc(collection(db, 'prompts', user.uid, 'projects'), {
-              productInfo,
-              draft,
-              prompts: finalPrompts,
-              createdAt: serverTimestamp()
-            });
-            setCurrentDocId(docRef.id);
-          }
-        } catch (dbError) {
-          console.error("Firestore update error:", dbError);
+    // Instead of calling /api/generate and waiting for 10 prompts,
+    // we initialize empty "skeletons" and immediately go to Workspace.
+    
+    if (!draft || !draft.sections) return;
+
+    const skeletons = draft.sections.map((sec, idx) => ({
+      id: sec.id || `section-${idx + 1}`,
+      section: sec.title,
+      // The rest of the fields will be populated later when generated
+      height: "1000px", // default fallback
+      mainCopy: "",
+      subCopy: "",
+      points: [],
+      trustElement: "",
+      fontStyle: "",
+      imagePrompt: "",
+      imageUrl: null,
+      isGenerated: false // custom flag to track if text prompt is generated
+    }));
+
+    setPrompts(skeletons);
+    
+    // Update Firestore with skeletons
+    if (user) {
+      try {
+        if (currentDocId) {
+          await updateDoc(doc(db, 'prompts', user.uid, 'projects', currentDocId), {
+            prompts: skeletons
+          });
+          console.log("Skeletons updated in Firestore!");
+        } else {
+          // Fallback if docId is missing
+          const docRef = await addDoc(collection(db, 'prompts', user.uid, 'projects'), {
+            productInfo,
+            draft,
+            prompts: skeletons,
+            createdAt: serverTimestamp()
+          });
+          setCurrentDocId(docRef.id);
         }
+      } catch (dbError) {
+        console.error("Firestore update error:", dbError);
       }
-      
-      setStep('RESULTS');
-    } catch (e) {
-      console.error(e);
-      alert('프롬프트 생성에 실패했습니다. 콘솔을 확인해 주세요.');
-      setStep('REVIEW');
     }
+    
+    setStep('RESULTS');
   };
 
   const handleReset = () => {
