@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Trash2, Calendar, FileText } from 'lucide-react';
+import { ArrowLeft, Trash2, Calendar, FileText, Play } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, orderBy, getDocs, doc, deleteDoc } from 'firebase/firestore';
@@ -130,9 +130,25 @@ export default function MyPage() {
           {selectedItem ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <FileText size={20} /> 원본 입력 정보
                 </h2>
+                <button 
+                  className="btn-primary" 
+                  onClick={() => {
+                    localStorage.setItem('appStep', selectedItem.prompts ? 'RESULTS' : 'REVIEW');
+                    localStorage.setItem('appProductInfo', selectedItem.productInfo || '');
+                    localStorage.setItem('appDraft', JSON.stringify(selectedItem.draft));
+                    if (selectedItem.prompts) localStorage.setItem('appPrompts', JSON.stringify(selectedItem.prompts));
+                    localStorage.setItem('appDocId', selectedItem.id);
+                    router.push('/');
+                  }}
+                  style={{ padding: '0.6rem 1.2rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '8px', boxShadow: '0 4px 10px rgba(99,102,241,0.3)' }}
+                >
+                  <Play size={18} /> 이 프로젝트 이어서 작업하기
+                </button>
+              </div>
                 <div className="glass-card" style={{ padding: '1.5rem', whiteSpace: 'pre-wrap' }}>
                   {selectedItem.productInfo || "(이미지 업로드로 생성됨)"}
                 </div>

@@ -16,7 +16,11 @@ import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/fi
 
 function App() {
   const [step, setStep] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('appStep') || 'INPUT';
+    if (typeof window !== 'undefined') {
+      const savedStep = localStorage.getItem('appStep');
+      if (savedStep === 'LOADING_RESULTS' || savedStep === 'LOADING_DRAFT') return 'INPUT';
+      return savedStep || 'INPUT';
+    }
     return 'INPUT';
   });
   const [draft, setDraft] = useState(() => {
