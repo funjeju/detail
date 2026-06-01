@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import InputForm from '../components/InputForm';
 import DraftReview from '../components/DraftReview';
 import PromptResults from '../components/PromptResults';
+import Workspace from '../components/Workspace';
 
 
 import { Sparkles, LogIn, LogOut, FileText } from 'lucide-react';
@@ -222,7 +223,13 @@ function App() {
         )}
 
         {step === 'RESULTS' && prompts && (
-          <PromptResults prompts={prompts} onReset={handleReset} />
+          <Workspace 
+            prompts={prompts} 
+            setPrompts={setPrompts} 
+            user={user} 
+            currentDocId={currentDocId} 
+            onReset={handleReset} 
+          />
         )}
       </main>
     </div>
