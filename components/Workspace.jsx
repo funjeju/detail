@@ -10,9 +10,12 @@ const Workspace = ({ prompts, setPrompts, user, currentDocId, onReset }) => {
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
 
   const activePrompt = prompts[activePromptIndex];
+  
+  // Backward compatibility: old prompts might not have isGenerated flag, but they have mainCopy
+  const isPromptGenerated = activePrompt ? (activePrompt.isGenerated || !!activePrompt.mainCopy) : false;
 
   // Dynamically combine image prompt with text copy for the image generator
-  const finalPrompt = activePrompt && activePrompt.isGenerated ? `${activePrompt.imagePrompt}
+  const finalPrompt = activePrompt && isPromptGenerated ? `${activePrompt.imagePrompt}
   
 CRITICAL INSTRUCTION FOR IMAGE GENERATION:
 You MUST render the following typography text beautifully overlaid on the image's negative space:
@@ -22,7 +25,7 @@ You MUST render the following typography text beautifully overlaid on the image'
 ` : '';
 
   const handleGenerateImage = async () => {
-    if (!activePrompt || !activePrompt.isGenerated) return;
+    if (!activePrompt || !isPromptGenerated) return;
     setIsGeneratingImage(true);
 
     try {
@@ -191,7 +194,7 @@ You MUST render the following typography text beautifully overlaid on the image'
               <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {prompt.section}
               </span>
-              {prompt.isGenerated && !prompt.imageUrl && <FileText size={14} color={activePromptIndex === index ? '#fff' : 'var(--primary-color)'} opacity={0.7} />}
+              {(prompt.isGenerated || !!prompt.mainCopy) && !prompt.imageUrl && <FileText size={14} color={activePromptIndex === index ? '#fff' : 'var(--primary-color)'} opacity={0.7} />}
               {prompt.imageUrl && <CheckCircle size={14} color={activePromptIndex === index ? '#fff' : 'var(--success-color)'} />}
             </div>
           ))}
@@ -208,7 +211,7 @@ You MUST render the following typography text beautifully overlaid on the image'
               <span style={{ color: 'var(--primary-color)', marginRight: '0.5rem' }}>✨</span>
               {activePrompt?.section}
             </h2>
-            {activePrompt?.isGenerated && (
+            {isPromptGenerated && (
               <div style={{ background: 'var(--bg-secondary)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}>
                 <ImageIcon size={14} /> 860px × {activePrompt?.height}
               </div>
@@ -219,7 +222,7 @@ You MUST render the following typography text beautifully overlaid on the image'
         {/* Dynamic Content based on isGenerated state */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           
-          {!activePrompt?.isGenerated ? (
+          {!isPromptGenerated ? (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
               <FileText size={48} color="var(--border-color)" style={{ marginBottom: '1rem' }} />
               <h3 style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>이 모듈의 텍스트 및 프롬프트가 아직 생성되지 않았습니다.</h3>
@@ -325,12 +328,12 @@ You MUST render the following typography text beautifully overlaid on the image'
               gap: '0.8rem',
               borderRadius: '12px',
               fontWeight: 'bold',
-              boxShadow: activePrompt?.isGenerated ? '0 8px 20px rgba(99, 102, 241, 0.3)' : 'none',
-              opacity: activePrompt?.isGenerated ? 1 : 0.5,
-              cursor: activePrompt?.isGenerated ? 'pointer' : 'not-allowed'
+              boxShadow: isPromptGenerated ? '0 8px 20px rgba(99, 102, 241, 0.3)' : 'none',
+              opacity: isPromptGenerated ? 1 : 0.5,
+              cursor: isPromptGenerated ? 'pointer' : 'not-allowed'
             }}
             onClick={handleGenerateImage}
-            disabled={!activePrompt?.isGenerated || isGeneratingImage || isAutoGenerating}
+            disabled={!isPromptGenerated || isGeneratingImage || isAutoGenerating}
           >
             {isGeneratingImage ? <div className="spinner" style={{ width: '22px', height: '22px', borderWidth: '3px' }}></div> : <Play size={22} />}
             {isGeneratingImage ? 'AI가 예술혼을 불태우는 중...' : '이 모듈 이미지 생성하기 (gpt-image-2)'}
@@ -387,7 +390,7 @@ You MUST render the following typography text beautifully overlaid on the image'
                       <ImageIcon size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
                       <h2 style={{ fontSize: '2rem', margin: 0 }}>{prompt.section}</h2>
                       <p style={{ fontSize: '1.5rem', marginTop: '1rem' }}>
-                        {prompt.isGenerated ? `이미지를 생성해주세요 (${prompt.height})` : '프롬프트를 먼저 생성해주세요'}
+                        {(prompt.isGenerated || !!prompt.mainCopy) ? `이미지를 생성해주세요 (${prompt.height})` : '프롬프트를 먼저 생성해주세요'}
                       </p>
                     </div>
                   )}
