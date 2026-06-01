@@ -9,6 +9,16 @@ const Workspace = ({ prompts, setPrompts, user, currentDocId, onReset }) => {
 
   const activePrompt = prompts[activePromptIndex];
 
+  // Dynamically combine image prompt with text copy for the image generator
+  const finalPrompt = activePrompt ? `${activePrompt.imagePrompt}
+  
+CRITICAL INSTRUCTION FOR IMAGE GENERATION:
+You MUST render the following typography text beautifully overlaid on the image's negative space:
+- Headline: "${activePrompt.mainCopy}"
+- Sub-headline: "${activePrompt.subCopy}"
+- Key Points: ${activePrompt.points.join(', ')}
+` : '';
+
   const handleGenerateImage = async () => {
     if (!activePrompt) return;
     setIsGenerating(true);
@@ -17,7 +27,7 @@ const Workspace = ({ prompts, setPrompts, user, currentDocId, onReset }) => {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt.imagePrompt })
+        body: JSON.stringify({ prompt: finalPrompt })
       });
 
       if (!response.ok) {
@@ -111,7 +121,7 @@ const Workspace = ({ prompts, setPrompts, user, currentDocId, onReset }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
               <span style={{ color: '#fff', fontWeight: 'bold' }}>이미지 생성용 프롬프트 (gpt-image-2)</span>
             </div>
-            <p style={{ lineHeight: '1.5', wordBreak: 'break-all' }}>{activePrompt?.imagePrompt}</p>
+            <p style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{finalPrompt}</p>
           </div>
         </div>
 
