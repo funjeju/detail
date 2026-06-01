@@ -36,10 +36,21 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    const imageUrl = data.data[0].url;
+    const item = data.data && data.data[0];
+    
+    if (!item) {
+      console.error("Missing data in OpenAI response:", JSON.stringify(data, null, 2));
+      return NextResponse.json({ error: `OpenAI returned invalid format: ${JSON.stringify(data)}` }, { status: 500 });
+    }
+
+    let imageUrl = item.url;
+    if (!imageUrl && item.b64_json) {
+      imageUrl = `data:image/png;base64,${item.b64_json}`;
+    }
     
     if (!imageUrl) {
-      return NextResponse.json({ error: 'OpenAI returned no image URL' }, { status: 500 });
+      console.error("Missing URL or base64 in OpenAI response:", JSON.stringify(data, null, 2));
+      return NextResponse.json({ error: `OpenAI returned no image URL. Full response: ${JSON.stringify(data)}` }, { status: 500 });
     }
 
     return NextResponse.json({ imageUrl });
