@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { imageBase64, mimeType } = await request.json();
+    const formData = await request.formData();
+    const imageBase64 = formData.get('imageBase64');
+    const mimeType = formData.get('mimeType');
     const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!apiKey) {
@@ -25,7 +27,7 @@ export async function POST(request) {
       generationConfig: { temperature: 0.4 },
     };
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

@@ -28,11 +28,14 @@ const InputForm = ({ onSubmit }) => {
       reader.onload = async () => {
         const base64 = reader.result;
         
-        // Call Vision API
+        // Call Vision API using FormData to prevent Vercel WAF 403 Forbidden on large base64 JSONs
+        const formData = new FormData();
+        formData.append('imageBase64', base64);
+        formData.append('mimeType', file.type);
+
         const response = await fetch('/api/vision', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: base64, mimeType: file.type })
+          body: formData
         });
         
         if (!response.ok) throw new Error('Vision API failed');
