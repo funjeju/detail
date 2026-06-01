@@ -52,8 +52,24 @@ function App() {
     localStorage.setItem('appProductInfo', productInfo);
     if (draft) localStorage.setItem('appDraft', JSON.stringify(draft));
     else localStorage.removeItem('appDraft');
-    if (prompts) localStorage.setItem('appPrompts', JSON.stringify(prompts));
-    else localStorage.removeItem('appPrompts');
+    
+    if (prompts) {
+      try {
+        const safePrompts = prompts.map(p => {
+          const pCopy = { ...p };
+          if (pCopy.imageUrl && pCopy.imageUrl.startsWith('data:image')) {
+            delete pCopy.imageUrl; // Strip base64 image to save space
+          }
+          return pCopy;
+        });
+        localStorage.setItem('appPrompts', JSON.stringify(safePrompts));
+      } catch (e) {
+        console.warn('Failed to save prompts to localStorage', e);
+      }
+    } else {
+      localStorage.removeItem('appPrompts');
+    }
+    
     if (currentDocId) localStorage.setItem('appDocId', currentDocId);
     else localStorage.removeItem('appDocId');
   }, [step, draft, prompts, productInfo, currentDocId]);

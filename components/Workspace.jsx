@@ -49,11 +49,18 @@ You MUST render the following typography text beautifully overlaid on the image'
 
       // Update Firestore if user is logged in
       if (user && currentDocId) {
-        // Strip out base64 image data before saving to Firestore to prevent 1MB limit or invalid entity errors
-        const promptsForDb = updatedPrompts.map(p => ({
-          ...p,
-          imageUrl: p.imageUrl?.startsWith('data:image') ? null : p.imageUrl
-        }));
+        // Strip out base64 image data and undefined fields before saving to Firestore to prevent 1MB limit or invalid entity errors
+        const promptsForDb = updatedPrompts.map(p => {
+          const pCopy = { ...p };
+          if (pCopy.imageUrl === undefined || (pCopy.imageUrl && pCopy.imageUrl.startsWith('data:image'))) {
+            delete pCopy.imageUrl;
+          }
+          // Firebase doesn't allow undefined values anywhere
+          Object.keys(pCopy).forEach(key => {
+            if (pCopy[key] === undefined) delete pCopy[key];
+          });
+          return pCopy;
+        });
         
         await updateDoc(doc(db, 'prompts', user.uid, 'projects', currentDocId), {
           prompts: promptsForDb
