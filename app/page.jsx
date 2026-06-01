@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import InputForm from '../components/InputForm';
 import DraftReview from '../components/DraftReview';
 import PromptResults from '../components/PromptResults';
-import { generateDraftStrategy } from '../data/mockGenerator';
+
 
 import { Sparkles, LogIn, LogOut } from 'lucide-react';
 
@@ -70,14 +70,30 @@ function App() {
     }
   };
 
-  const handleInputSubmit = (content) => {
+  const handleInputSubmit = async (content) => {
     setProductInfo(content);
     setStep('LOADING_DRAFT');
     
-    // Use mock draft generation
-    const draftData = generateDraftStrategy(content);
-    setDraft(draftData);
-    setStep('REVIEW');
+    try {
+      const response = await fetch('/api/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productInfo: content })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate draft');
+      }
+      
+      const draftData = await response.json();
+      setDraft(draftData);
+      setStep('REVIEW');
+    } catch (e) {
+      console.error(e);
+      alert('초안 생성에 실패했습니다. 콘솔을 확인해 주세요.');
+      setStep('INPUT');
+    }
   };
 
   const handleConfirmDraft = async () => {
