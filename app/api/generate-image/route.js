@@ -17,8 +17,7 @@ export async function POST(request) {
       model: "gpt-image-2", // The user's specified 2026 ChatGPT Image 2.0 API model
       prompt: prompt,
       n: 1,
-      size: "1024x1792", // Using the maximum vertical ratio supported by standard OpenAI APIs
-      response_format: "url"
+      size: "1024x1792" // Using the maximum vertical ratio supported by standard OpenAI APIs
     };
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
