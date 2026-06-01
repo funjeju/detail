@@ -7,6 +7,8 @@ const InputForm = ({ onSubmit }) => {
   const [inputType, setInputType] = useState('text'); // text, url, image
   const [content, setContent] = useState('');
 
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -14,11 +16,42 @@ const InputForm = ({ onSubmit }) => {
     }
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setContent(file.name);
-      onSubmit(file.name);
+    if (!file) return;
+    
+    setIsAnalyzingImage(true);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const base64 = reader.result;
+        
+        // Call Vision API
+        const response = await fetch('/api/vision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: base64, mimeType: file.type })
+        });
+        
+        if (!response.ok) throw new Error('Vision API failed');
+        
+        const data = await response.json();
+        const extractedText = data.productInfo;
+        
+        setContent(extractedText);
+        onSubmit(extractedText);
+        setIsAnalyzingImage(false);
+      };
+      reader.onerror = () => {
+        setIsAnalyzingImage(false);
+        alert('이미지를 읽는 중 오류가 발생했습니다.');
+      };
+    } catch (err) {
+      console.error(err);
+      setIsAnalyzingImage(false);
+      alert('이미지 분석에 실패했습니다.');
     }
   };
 
@@ -100,17 +133,28 @@ const InputForm = ({ onSubmit }) => {
         {inputType === 'image' && (
           <div className="input-group">
             <label>대표 이미지 또는 참고 이미지</label>
-            <div className="file-upload-area" onClick={() => document.getElementById('fileInput').click()}>
-              <Upload size={48} />
-              <p>클릭하거나 이미지를 여기로 드래그하세요.</p>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>PNG, JPG, WEBP (최대 5MB)</span>
+            <div className="file-upload-area" onClick={() => !isAnalyzingImage && document.getElementById('fileInput').click()} style={{ opacity: isAnalyzingImage ? 0.7 : 1, cursor: isAnalyzingImage ? 'wait' : 'pointer' }}>
+              {isAnalyzingImage ? (
+                <>
+                  <div className="spinner" style={{ marginBottom: '1rem', width: '32px', height: '32px' }}></div>
+                  <p>AI가 이미지를 세밀하게 분석 중입니다...</p>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>잠시만 기다려주세요.</span>
+                </>
+              ) : (
+                <>
+                  <Upload size={48} />
+                  <p>클릭하거나 이미지를 여기로 드래그하세요.</p>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>PNG, JPG, WEBP (최대 5MB)</span>
+                </>
+              )}
               <input 
                 id="fileInput" 
                 type="file" 
+                accept="image/*"
                 style={{ display: 'none' }} 
-                onChange={handleFileSelect} 
+                onChange={handleFileSelect}
+                disabled={isAnalyzingImage}
               />
-              {content && <p style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{content} 선택됨</p>}
             </div>
           </div>
         )}
