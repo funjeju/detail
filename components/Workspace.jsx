@@ -91,52 +91,120 @@ You MUST render the following typography text beautifully overlaid on the image'
       </div>
 
       {/* 2. Middle Panel: Prompt Editor & Generate Button */}
-      <div className="glass-card" style={{ flex: '1', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.2rem', color: 'var(--primary-color)' }}>{activePrompt?.section}</h2>
-          <span className="badge">권장 크기: 860px × {activePrompt?.height}</span>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
-          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-            <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>메인 & 서브 카피</h4>
-            <p style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>{activePrompt?.mainCopy}</p>
-            <p style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>{activePrompt?.subCopy}</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>보조 포인트</h4>
-              <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.9rem' }}>
-                {activePrompt?.points.map((pt, i) => <li key={i}>{pt}</li>)}
-              </ul>
+      <div className="glass-card" style={{ flex: '1', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '0', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* Header Area */}
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(to right, rgba(99, 102, 241, 0.05), transparent)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0, fontWeight: '800', lineHeight: '1.3' }}>
+              <span style={{ color: 'var(--primary-color)', marginRight: '0.5rem' }}>✨</span>
+              {activePrompt?.section}
+            </h2>
+            <div style={{ background: 'var(--bg-secondary)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}>
+              <ImageIcon size={14} /> 860px × {activePrompt?.height}
             </div>
-            <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>신뢰 요소</h4>
-              <p style={{ fontSize: '0.9rem' }}>{activePrompt?.trustElement}</p>
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: '#1a1a2e', color: '#a0a0b0', padding: '1rem', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ color: '#fff', fontWeight: 'bold' }}>이미지 생성용 프롬프트 (gpt-image-2)</span>
-            </div>
-            <p style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{finalPrompt}</p>
           </div>
         </div>
 
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          
+          {/* Main & Sub Copy Card */}
+          <div style={{ 
+            background: 'linear-gradient(145deg, #ffffff, #f3f4f6)', 
+            padding: '1.5rem', 
+            borderRadius: '16px', 
+            boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
+            border: '1px solid rgba(255,255,255,0.6)'
+          }}>
+            <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--primary-color)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold' }}>
+              <FileText size={16} /> 메인 & 서브 카피
+            </h4>
+            <div style={{ borderLeft: '4px solid var(--primary-color)', paddingLeft: '1rem' }}>
+              <p style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '0.5rem', color: '#1f2937', lineHeight: '1.4' }}>"{activePrompt?.mainCopy}"</p>
+              <p style={{ fontSize: '1rem', color: '#4b5563', lineHeight: '1.6' }}>{activePrompt?.subCopy}</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
+            {/* Key Points Card */}
+            <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', border: '1px solid var(--border-color)' }}>
+              <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 'bold' }}>보조 포인트</h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {activePrompt?.points.map((pt, i) => (
+                  <span key={i} style={{ 
+                    background: 'rgba(99, 102, 241, 0.1)', 
+                    color: 'var(--primary-color)', 
+                    padding: '0.4rem 0.8rem', 
+                    borderRadius: '20px', 
+                    fontSize: '0.85rem',
+                    fontWeight: '500'
+                  }}>
+                    {pt}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Trust Element Card */}
+            <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+              <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <CheckCircle size={14} color="var(--success-color)" /> 신뢰 요소
+              </h4>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', padding: '1rem' }}>
+                <p style={{ fontSize: '1rem', color: '#334155', fontWeight: 'bold', textAlign: 'center', margin: 0 }}>{activePrompt?.trustElement}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Prompt Terminal Card */}
+          <div style={{ 
+            backgroundColor: '#0f172a', 
+            color: '#e2e8f0', 
+            padding: '1.5rem', 
+            borderRadius: '16px', 
+            fontFamily: '"Fira Code", monospace', 
+            fontSize: '0.85rem',
+            boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)',
+            marginTop: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #334155' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#eab308' }}></div>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
+              </div>
+              <span style={{ color: '#94a3b8', fontWeight: 'bold', fontSize: '0.75rem', letterSpacing: '1px' }}>GPT-IMAGE-2 PROMPT</span>
+            </div>
+            <p style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#38bdf8' }}>
+              {finalPrompt}
+            </p>
+          </div>
+        </div>
+
+        {/* Action Footer */}
+        <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', gap: '1rem' }}>
           <button 
             className="btn-primary" 
-            style={{ flex: 1, padding: '1rem', fontSize: '1.1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+            style={{ 
+              flex: 1, 
+              padding: '1.2rem', 
+              fontSize: '1.1rem', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              gap: '0.8rem',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)'
+            }}
             onClick={handleGenerateImage}
             disabled={isGenerating}
           >
-            {isGenerating ? <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div> : <Play size={20} />}
-            {isGenerating ? '이미지 생성 중 (gpt-image-2)...' : '이 모듈 이미지 생성하기'}
+            {isGenerating ? <div className="spinner" style={{ width: '22px', height: '22px', borderWidth: '3px' }}></div> : <Play size={22} />}
+            {isGenerating ? 'AI가 예술혼을 불태우는 중...' : '이 모듈 이미지 생성하기 (gpt-image-2)'}
           </button>
-          <button className="btn-secondary" onClick={onReset} style={{ padding: '0 1rem' }}>
-            <RefreshCw size={20} /> 처음으로
+          <button className="btn-secondary" onClick={onReset} style={{ padding: '0 1.5rem', borderRadius: '12px' }}>
+            <RefreshCw size={22} />
           </button>
         </div>
       </div>
